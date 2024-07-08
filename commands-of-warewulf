@@ -1,0 +1,105 @@
+    1  cd
+    2  ip r
+    3  dhclient -r
+    4  dhclient -r
+    5  dhclient
+    6  ip r
+    7  yum install update -y
+    8  clear
+    9  hsitory
+   10  history
+   11  firewall-cmd --list-all
+   12  cockpit -h
+   13  clear
+   14  hostname
+   15  whoami
+   16  cat /etc/hosts
+   17  history
+   18  systemctl stop firewalld
+   19  systemctl disable firewalld
+   20  sestatus
+   21  vim k
+   22  yum install vim -y
+   23  vim /etc/selinux/semanage.conf 
+   24  vim /etc/selinux/config 
+   25  setenforce 0
+   26  sestatus
+   27  init 6
+   28  clear
+   29  ip r
+   30  cat /etc/hosts
+   31  vim /etc/hosts
+   32  yum install http://repos.openhpc.community/OpenHPC/2/EL_8/x86_64/ohpc-release-2-1.el8.x86_64.rpm
+   33  yum -y install ohpc-base
+   34  yum -y install ohpc-warewulf hwloc-ohpc
+   35  ip r
+   36   perl -pi -e "s/device = eth1/device = ens224/" /etc/warewulf/provision.conf
+   37  ip link set dev ens224 up
+   38  ip r
+   39  systemctl start httpd
+   40  systemctl enable httpd
+   41  systemctl enable dhcpd
+   42  systemctl enable tftpd
+   43  systemctl enable tftp
+   44  systemctl restart tftp
+   45  systemctl restart httpd
+   46  #perl -pi -e &quot;s/^\s+disable\s+= yes/ disable = no/&quot; /etc/xinetd.d/tftp
+   47  ll /etc/xinetd.d/
+   48  systemctl restart xinetd
+   49  perl -pi -e "s/^\s+disable\s+= yes/ disable = no/"; /etc/xinetd.d/tftp
+   50  ll /etc/xinetd.d/
+   51  export CHROOT=/opt/ohpc/admin/images/rocky8.8
+   52  wwmkchroot -v rocky-8 $CHROOT
+   53  dnf -y --installroot $CHROOT install epel-release
+   54  cp -p /etc/yum.repos.d/OpenHPC*.repo $CHROOT/etc/yum.repos.d
+   55  yum -y --installroot=$CHROOT install ohpc-base-compute
+   56  cp -p /etc/resolv.conf $CHROOT/etc/resolv.conf
+   57  yum -y --installroot=$CHROOT install kernel-uname -r
+   58  yum -y --installroot=$CHROOT install lmod-ohpc
+   59  wwinit database
+   60  wwinit ssh_keys
+   61  #echo "${sms_ip}:/home /home nfs nfsvers=3,nodev,nosuid 0 0" >> $CHROOT/etc/fstab
+   62  ip r
+   
+   64  echo "10.10.1.5:/opt/ohpc/pub /opt/ohpc/pub nfs nfsvers=3,nodev 0 0" >> $CHROOT/etc/fstab
+   65  echo "/home *(rw,no_subtree_check,fsid=10,no_root_squash)" >> /etc/exports
+   66  echo "/opt/ohpc/pub *(ro,no_subtree_check,fsid=11)" >> /etc/exports
+   67  exportfs -a
+   68  systemctl restart nfs-server
+   69  systemctl enable nfs-server
+   70  systemctl restart rsyslog
+   71  echo ’module(load="imudp")’ >> /etc/rsyslog.d/ohpc.conf
+   72  echo 'module(load="imudp")' >> /etc/rsyslog.d/ohpc.conf
+   73  echo 'input(type="imudp" port="514")' >> /etc/rsyslog.d/ohpc.conf
+   74  systemctl restart rsyslog
+   75  echo ". @10.10.1.5:514" >> $CHROOT/etc/rsyslog.conf
+   76  echo "Target=\"10.10.1.5\" Protocol=\"udp\"" >> $CHROOT/etc/rsyslog.conf
+   77  perl -pi -e "s/^\\.info/\\#\\.info/" $CHROOT/etc/rsyslog.conf
+   78  perl -pi -e "s/^authpriv/\\#authpriv/" $CHROOT/etc/rsyslog.conf
+   79  perl -pi -e "s/^mail/\\#mail/" $CHROOT/etc/rsyslog.confperl -pi -e "s/^mail/\\#mail/" $CHROOT/etc/rsyslog.conf
+   80  perl -pi -e "s/^cron/\\#cron/" $CHROOT/etc/rsyslog.conf
+   81  perl -pi -e "s/^uucp/\\#uucp/" $CHROOT/etc/rsyslog.conf
+   82  yum -y install clustershell
+   83  wwsh file import /etc/passwd
+   84  wwsh file import /etc/group
+   85  wwsh file import /etc/shadow
+   86  export WW_CONF=/etc/warewulf/bootstrap.conf
+   87  echo "drivers += updates/kernel/" >> $WW_CONF
+   88  wwbootstrap uname -r
+   89  wwvnfs --chroot $CHROOT
+   90  ip r
+   91  echo "GATEWAYDEV=ens224" > /tmp/network.$$
+   92  wwsh -y file import /tmp/network.$$ --name network
+   93  wwsh -y file set network --path /etc/sysconfig/network --mode=0644 --uid=0
+   94  wwsh -y node new &lt;node name&gt; --ipaddr=&lt;ip for client&gt; --hwaddr=&lt;client &gt; -D
+   95  #wwsh -y node new &lt;node name&gt; --ipaddr=&lt;ip for client&gt; --hwaddr=&lt;client &gt; -D
+   96  ip r
+   97  wwsh -y node new cn01 --ipaddr=10.10.1.6 --hwaddr=00:0C:29:04:23:63 -D ens224
+   98  wwsh -y provision set cn01 --vnfs=rocky8.8 --bootstrap=uname -r =dynamic_hosts,passwd,group,shadow,network
+   99  systemctl restart dhcpd
+  100  systemctl status dhcpd
+  101  vim /etc/dhcp/dhcpd.conf 
+  102  wwsh pxe update
+  103  ip r
+  104  cat /etc/hosts
+  106  history > warewulf_cmds
